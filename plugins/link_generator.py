@@ -3,16 +3,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from bot import Bot
 from config import *
 from helper_func import encode, get_message_id
-import requests
 import aiohttp
-
-'''
-async def get_short_link(link):
-    response = requests.get(f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}")
-    data = response.json()
-    if data["status_code"] == "success" or rget.status_code == 200:
-        return data["data"]
-'''
 
 async def get_short_link(link):
     url = f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}"
