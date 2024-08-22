@@ -122,7 +122,8 @@ async def decode(base64_string):
 '''
 
 def encode(string):
-    min_length=4, max_length=10
+    min_length=4
+    max_length=10
     # Ensure the length is within the specified range
     if min_length > max_length:
         raise ValueError("min_length cannot be greater than max_length")
