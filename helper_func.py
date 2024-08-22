@@ -1,4 +1,4 @@
-import asyncio, re, base64, hashlib, random, string
+import asyncio, re, base64
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus
 from config import FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4, ADMINS
@@ -106,7 +106,7 @@ async def is_subscribed(filter, client, update):
     else:
         return True        
         
-'''
+
 async def encode(string):
     string_bytes = string.encode("ascii")
     base64_bytes = base64.urlsafe_b64encode(string_bytes)
@@ -120,7 +120,6 @@ async def decode(base64_string):
     string_bytes = base64.urlsafe_b64decode(base64_bytes) 
     string = string_bytes.decode("ascii")
     return string
-'''
 
 
 # Generate a key for encryption
