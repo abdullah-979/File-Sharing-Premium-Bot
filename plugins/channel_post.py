@@ -5,6 +5,7 @@ from pyrogram.errors import FloodWait
 from bot import Bot
 from config import *
 from helper_func import encode
+from plugins.link_generator import get_short_link
 
 
 @Bot.on_message(filters.private & filters.user(ADMINS) & ~filters.command(['start','users','broadcast','batch','genlink','stats']))
