@@ -4,11 +4,27 @@ from bot import Bot
 from config import *
 from helper_func import encode, get_message_id
 
+'''
 async def get_short_link(link):
     response = requests.get(f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}")
     data = response.json()
     if data["status"] == "success" or rget.status_code == 200:
         return data["shortenedUrl"]
+'''
+
+
+async def get_short_link(link):
+    url = f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.json()
+                if data.get("status") == "success":
+                    return data.get("shortenedUrl")
+                else:
+                    raise Exception("Failed to shorten the link")
+            else:
+                raise Exception(f"HTTP error: {response.status}")
 
 
 @Bot.on_message(filters.private & filters.user(ADMINS) & filters.command('batch'))
