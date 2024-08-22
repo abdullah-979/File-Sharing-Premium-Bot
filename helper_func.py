@@ -122,50 +122,6 @@ async def decode(base64_string):
     return string
 
 
-# Generate a key for encryption
-def generate_key():
-    return Fernet.generate_key()
-
-# Initialize the encryption/decryption object
-def get_cipher(key):
-    return Fernet(key)
-
-# Encode function
-async def encode(string, key, min_length=4, max_length=10):
-    cipher = get_cipher(key)
-
-    # Encode the string to bytes
-    string_bytes = string.encode("utf-8")
-    
-    # Encrypt the string
-    encrypted_bytes = cipher.encrypt(string_bytes)
-    
-    # Encode the encrypted bytes to base64
-    base64_bytes = base64.urlsafe_b64encode(encrypted_bytes)
-    base64_string = base64_bytes.decode("utf-8").strip("=")
-    
-    # Generate a random length within the specified range
-    random_length = random.randint(min_length, max_length)
-    
-    # Return a substring of the base64 result with the random length
-    return base64_string[:random_length]
-
-# Decode function
-async def decode(encoded_string, key):
-    cipher = get_cipher(key)
-    
-    # Pad the base64 string and decode it
-    padded_base64_string = encoded_string + "="
-    base64_bytes = padded_base64_string.encode("utf-8")
-    encrypted_bytes = base64.urlsafe_b64decode(base64_bytes)
-    
-    # Decrypt the bytes
-    decrypted_bytes = cipher.decrypt(encrypted_bytes)
-    
-    # Convert bytes back to string
-    return decrypted_bytes.decode("utf-8")
-
-
 async def get_messages(client, message_ids):
     messages = []
     total_messages = 0
@@ -238,8 +194,6 @@ def get_readable_time(seconds: int) -> str:
 
 subscribed = filters.create(is_subscribed)
        
-
-
 
 
 
