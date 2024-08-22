@@ -4,6 +4,13 @@ from bot import Bot
 from config import *
 from helper_func import encode, get_message_id
 
+async def get_short_link(link):
+    response = requests.get(f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}")
+    data = response.json()
+    if data["status"] == "success" or rget.status_code == 200:
+        return data["shortenedUrl"]
+
+
 @Bot.on_message(filters.private & filters.user(ADMINS) & filters.command('batch'))
 async def batch(client: Client, message: Message):
     while True:
@@ -32,14 +39,17 @@ async def batch(client: Client, message: Message):
     string = f"get-{f_msg_id * abs(client.db_channel.id)}-{s_msg_id * abs(client.db_channel.id)}"
     base64_string = await encode(string)
     #link = f"https://t.me/{client.username}?start={base64_string}"
+    
     try:
         if FINAL_URL is not None:
             link = f"https://{FINAL_URL}?start={base64_string}"
     except:
         link = f"https://telegram.me/{client.username}?start={base64_string}"
 
+    short_link = await get_short_link(link)
+
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Share URL", url=f'https://telegram.me/share/url?url={link}')]])
-    await second_message.reply_text(f"<b>Here is Link :\n<code>{link}</code></b>", quote=True, reply_markup=reply_markup)
+    await second_message.reply_text(f"<b>Here is Link :\n<code>{short_link}</code></b>", quote=True, reply_markup=reply_markup)
 @Bot.on_message(filters.private & filters.user(ADMINS) & filters.command('genlink'))
 async def link_generator(client: Client, message: Message):
     while True:
@@ -62,8 +72,8 @@ async def link_generator(client: Client, message: Message):
     except:
         link = f"https://telegram.me/{client.username}?start={base64_string}"
 
+    short_link = await get_short_link(link)
+
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Share URL", url=f'https://telegram.me/share/url?url={link}')]])
-    await channel_message.reply_text(f"<b>Here is Link :\n<code>{link}</code></b>", quote=True, reply_markup=reply_markup)
-
-
+    await channel_message.reply_text(f"<b>Here is Link :\n<code>{short_link}</code></b>", quote=True, reply_markup=reply_markup)
 
