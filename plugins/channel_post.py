@@ -5,6 +5,8 @@ from pyrogram.errors import FloodWait
 from bot import Bot
 from config import *
 from helper_func import encode
+
+
 @Bot.on_message(filters.private & filters.user(ADMINS) & ~filters.command(['start','users','broadcast','batch','genlink','stats']))
 async def channel_post(client: Client, message: Message):
     reply_text = await message.reply_text("Please Wait...!", quote = True)
@@ -33,6 +35,8 @@ async def channel_post(client: Client, message: Message):
 
     if not DISABLE_CHANNEL_BUTTON:
         await post_message.edit_reply_markup(reply_markup)
+
+
 @Bot.on_message(filters.channel & filters.incoming & filters.chat(CHANNEL_ID))
 async def new_post(client: Client, message: Message):
 
@@ -55,8 +59,6 @@ async def new_post(client: Client, message: Message):
     except Exception as e:
         print(e)
         pass
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
+
+
+

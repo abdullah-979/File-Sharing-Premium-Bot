@@ -25,8 +25,5 @@ async def del_user(user_id: int):
     user_data.delete_one({'_id': user_id})
     return
 
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
+
+

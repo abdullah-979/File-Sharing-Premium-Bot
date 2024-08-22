@@ -5,6 +5,8 @@
 </h1>
 
 <p align="center">🩵 Thanks for Being Here 🩵</p>
+
+
 ### CONFIGS VARIABLES
 
 * `API_HASH` Your API Hash from my.telegram.org
@@ -24,12 +26,16 @@
 * `FORCE_SUB_CHANNEL4` Optional: ForceSub Channel ID, leave 0 if you want disable force sub
 * `PROTECT_CONTENT` Optional: True if you need to prevent files from forwarding
 
+
+
 ### EXTRA VARIABLES
 
 * `CUSTOM_CAPTION` put your Custom caption text if you want Setup Custom Caption, you can use HTML and <a href='https://github.com/JishuDeveloper/File-Sharing-Bot/blob/4-force-subs/README.md#custom_caption'>fillings</a> for formatting (only for documents)
 * `DISABLE_CHANNEL_BUTTON` Put True to Disable Channel Share Button, Default if False
 * `BOT_STATS_TEXT` put your custom text for stats command, use HTML and <a href='https://github.com/JishuDeveloper/File-Sharing-Bot/blob/4-force-subs/README.md#custom_stats'>fillings</a>
 * `USER_REPLY_TEXT` put your text to show when user sends any message, use HTML
+
+
 
 ### DEPLOYEMENT SUPPORT
 
@@ -49,6 +55,8 @@
 </a>
 </p>
 
+
+
 ### FEATURES
 - Fully customisable.
 - Customisable welcome & Forcesub messages.
@@ -57,10 +65,14 @@
 - Deploy to Koyeb + Heroku + Railway.
 - Developer Service 24x7.
 
+
+
 ### SETUP
 
 - Add the bot to Database Channel with all permission
 - Add bot to ForceSub channel as Admin with Invite Users via Link Permission if you enabled ForceSub
+
+
 ### FILLINGS
 #### START_MESSAGE | FORCE_SUB_MESSAGE
 
@@ -78,6 +90,8 @@
 #### CUSTOM_STATS
 
 * `{uptime}` - Bot Uptime
+
+
 ### ALL COMMANDS
 
 ```
@@ -89,6 +103,8 @@ users - view bot statistics
 broadcast - broadcast any messages to bot users
 stats - checking your bot uptime
 ```
+
+
 
 ### ❤️ RESPECTING ❤️
 - [JishuDeveloper](https://github.com/JishuDeveloper)

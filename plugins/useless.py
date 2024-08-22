@@ -17,8 +17,4 @@ async def useless(_,message: Message):
     if USER_REPLY_TEXT:
         await message.reply(USER_REPLY_TEXT)
 
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
+
