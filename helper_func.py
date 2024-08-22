@@ -121,7 +121,7 @@ async def decode(base64_string):
     return string
 '''
 
-def encode(string):
+async def encode(string):
     min_length=4
     max_length=10
     # Ensure the length is within the specified range
@@ -139,7 +139,7 @@ def encode(string):
     # Return a substring of the base64 string with the random length
     return base64_string[:random_length]
 
-def decode(base64_string):
+async def decode(base64_string):
     # Add padding to the base64 string if necessary
     padding_needed = (4 - len(encoded_string) % 4) % 4
     padded_string = encoded_string + "=" * padding_needed
