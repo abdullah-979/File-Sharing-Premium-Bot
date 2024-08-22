@@ -3,31 +3,21 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from bot import Bot
 from config import *
 from helper_func import encode, get_message_id
-import requests
 import aiohttp
 
-#'''
-async def get_short_link(link):
-    response = requests.get(f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}")
-    data = response.json()
-    if data["status_code"] == "success" or rget.status_code == 200:
-        return data["data"]
-#'''
-
-'''
 async def get_short_link(link):
     url = f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
                 data = await response.json()
-                if data.get("status_code") == "success":
+                if data.get("status_code") == "200":
+                    # Extract the shortened URL from the 'data' field
                     return data.get("data")
                 else:
                     raise Exception("Failed to shorten the link")
             else:
                 raise Exception(f"HTTP error: {response.status}")
-'''
 
 @Bot.on_message(filters.private & filters.user(ADMINS) & filters.command('batch'))
 async def batch(client: Client, message: Message):
