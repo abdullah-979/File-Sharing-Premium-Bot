@@ -6,16 +6,15 @@ from helper_func import encode, get_message_id
 import aiohttp
 
 async def get_short_link(link):
-    url = f"https://www.shareaholic.com/v2/share/shorten_link?apikey=8943b7fd64cd8b1770ff5affa9a9437b&url={link}"
+    url = "https://cleanuri.com/api/v1/shorten"
+    data = {'url': link}
+    
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
+        async with session.post(url, data=data) as response:
             if response.status == 200:
                 data = await response.json()
-                if data.get("status_code") == "200":
-                    # Extract the shortened URL from the 'data' field
-                    return data.get("data")
-                else:
-                    raise Exception("Failed to shorten the link")
+                # Extract the shortened URL from the 'result_url' field
+                return data.get("result_url")
             else:
                 raise Exception(f"HTTP error: {response.status}")
 
