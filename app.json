@@ -63,7 +63,7 @@
       },
       "START_MESSAGE": {
         "description": "Optional: start message of bot, use HTML parsemode format",
-        "value": "Hello {mention}\n\nI Can Store Private Files In Specified Channel And Other Users Can Access It From Special Link.",
+        "value": "Hello {mention}\n\nI can store private files in Specified Channel and other users can access it from special link.",
         "required": false
       },
       "FORCE_SUB_MESSAGE": {
