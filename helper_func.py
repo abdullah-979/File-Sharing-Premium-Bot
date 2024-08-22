@@ -105,7 +105,7 @@ async def is_subscribed(filter, client, update):
     else:
         return True        
         
-
+'''
 async def encode(string):
     string_bytes = string.encode("ascii")
     base64_bytes = base64.urlsafe_b64encode(string_bytes)
@@ -119,6 +119,41 @@ async def decode(base64_string):
     string_bytes = base64.urlsafe_b64decode(base64_bytes) 
     string = string_bytes.decode("ascii")
     return string
+'''
+
+
+def encode(string, min_length=4, max_length=10):
+    # Ensure the length is within the specified range
+    if min_length > max_length:
+        raise ValueError("min_length cannot be greater than max_length")
+
+    # Encode the string to bytes and then to base64
+    string_bytes = string.encode("ascii")
+    base64_bytes = base64.urlsafe_b64encode(string_bytes)
+    base64_string = base64_bytes.decode("ascii").strip("=")
+
+    # Use a hash function to create a base string
+    hash_object = hashlib.sha256(base64_string.encode("ascii"))
+    hash_string = hash_object.hexdigest()  # Full hash
+
+    # Generate a random length within the specified range
+    random_length = random.randint(min_length, max_length)
+
+    # Return a substring of the hash with the random length
+    return hash_string[:random_length]
+
+def decode(encoded_string, original_string):
+    # Direct decoding is not possible with hashing.
+    # We can only match if we know the exact original string and length.
+
+    # Encode the original string to get the corresponding encoded string
+    original_encoded = encode(original_string, min_length=len(encoded_string), max_length=len(encoded_string))
+    
+    # Check if the encoded string matches the one we got
+    if encoded_string == original_encoded:
+        return original_string
+    else:
+        raise ValueError("Encoded string does not match the original string.")
 
 
 async def get_messages(client, message_ids):
