@@ -5,5 +5,3 @@ pymongo
 dnspython
 aiohttp
 humanize
-
-requests
