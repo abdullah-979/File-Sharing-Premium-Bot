@@ -3,8 +3,6 @@ from pyrogram.types import Message
 from bot import Bot
 
 
-
-
 @Bot.on_message(filters.command("id") & filters.private)
 async def showid(client, message):
     chat_type = message.chat.type
@@ -16,10 +14,6 @@ async def showid(client, message):
             quote=True
         )
         
-
-
-
-
 
 # Jishu Developer 
 # Don't Remove Credit 🥺

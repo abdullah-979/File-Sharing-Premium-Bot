@@ -5,8 +5,6 @@ dbclient = pymongo.MongoClient(DB_URL)
 database = dbclient[DB_NAME]
 user_data = database['users']
 
-
-
 async def present_user(user_id : int):
     found = user_data.find_one({'_id': user_id})
     return bool(found)
@@ -26,14 +24,6 @@ async def full_userbase():
 async def del_user(user_id: int):
     user_data.delete_one({'_id': user_id})
     return
-
-
-
-
-
-
-
-
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
