@@ -1,5 +1,5 @@
 <h1 align="center">
-<b><a href="https://github.dev/Tamilupdates/File-Sharing-Premium-Bot" target="/blank"> File Sharing Bot </a></>
+File Sharing Bot
 </h1>
 
 
