@@ -118,34 +118,22 @@ async def start_command(client: Client, message: Message):
         return
 
 
-async def has_joined_channel(user_id, channel_id):
-    try:
-        chat_member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
-        return chat_member.status in ['member', 'administrator', 'creator']
-    except Exception as e:
-        # Handle exceptions (e.g., user not found, channel not accessible)
-        return False
-
 @Bot.on_message(filters.command('start') & filters.private)
 async def not_joined(client: Client, message: Message):
     buttons = []
 
-    user_id = message.from_user.id
-
-    # Check each channel and add the button only if the user has not joined
-    if hasattr(client, 'invitelink') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL):
+    if hasattr(client, 'invitelink'):
         buttons.append([InlineKeyboardButton(text="Join Channel 1", url=client.invitelink)])
     
-    if hasattr(client, 'invitelink2') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL2):
+    if hasattr(client, 'invitelink2'):
         buttons.append([InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2)])
     
-    if hasattr(client, 'invitelink3') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL3):
+    if hasattr(client, 'invitelink3'):
         buttons.append([InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3)])
     
-    if hasattr(client, 'invitelink4') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL4):
+    if hasattr(client, 'invitelink4'):
         buttons.append([InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4)])
 
-    # Add the "Try Again" button if the command contains additional parameters
     if message.command and len(message.command) > 1:
         buttons.append(
             [
@@ -156,7 +144,6 @@ async def not_joined(client: Client, message: Message):
             ]
         )
 
-    # Send the message with the buttons
     await message.reply(
         text=FORCE_MSG.format(
             first=message.from_user.first_name,
