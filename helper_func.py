@@ -6,102 +6,31 @@ from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
 from pyrogram.errors import FloodWait
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL:
-        return True
     user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL, user_id = user_id)
-    except UserNotParticipant:
-        return False
-
-    if not member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-        return False
-    else:
-        return True
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL2:
-        return True
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL2, user_id = user_id)
-    except UserNotParticipant:
-        return False
-
-    if not member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-        return False
-    else:
-        return True
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL3:
-        return True
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL3, user_id = user_id)
-    except UserNotParticipant:
-        return False
-
-    if not member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-        return False
-    else:
-        return True
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL4:
-        return True
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL4, user_id = user_id)
-    except UserNotParticipant:
-        return False
-
-    if not member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-        return False
-    else:
-        return True                
-
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL:
-        return True
-    if not FORCE_SUB_CHANNEL2:
-        return True
-    if not FORCE_SUB_CHANNEL3:
-        return True
-    if not FORCE_SUB_CHANNEL4:
-        return True    
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL, user_id = user_id)
-    except UserNotParticipant:
-        return False
-
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL2, user_id = user_id)
-    except UserNotParticipant:
-        return False
     
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL3, user_id = user_id)
-    except UserNotParticipant:
-        return False
+    # Allow admins to bypass the subscription check
+    if user_id in ADMINS:
+        return True
+
+    # List of channels to check
+    channels = [FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4]
     
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL4, user_id = user_id)
-    except UserNotParticipant:
-        return False     
-        
+    # Iterate through the channels and check if the user is subscribed
+    for channel in channels:
+        if not channel:  # Skip empty or unset channels
+            continue
+        try:
+            member = await client.get_chat_member(chat_id=channel, user_id=user_id)
+            if member.status not in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
+                return False
+        except UserNotParticipant:
+            return False
+        except Exception as e:
+            print(f"Error checking subscription for channel {channel}: {e}")
+            return False  # Consider user not subscribed if there's an error
+
+    # If all checks passed, the user is subscribed to all required channels
+    return True
 
 async def encode(string):
     string_bytes = string.encode("ascii")
