@@ -167,6 +167,19 @@ async def not_joined(client: Client, message: Message):
             ]
         )
 
+    # Default reply markup when no channels to show
+    default_markup = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("😊 About Me", callback_data="about"),
+                InlineKeyboardButton("🔒 Close", callback_data="close")
+            ]
+        ]
+    )
+
+    # Use default markup if no channels are left to join
+    reply_markup = InlineKeyboardMarkup(buttons) if buttons else default_markup
+
     await message.reply(
         text=FORCE_MSG.format(
             first=message.from_user.first_name,
@@ -175,7 +188,7 @@ async def not_joined(client: Client, message: Message):
             mention=message.from_user.mention,
             id=message.from_user.id
         ),
-        reply_markup=InlineKeyboardMarkup(buttons),
+        reply_markup=reply_markup,
         quote=True,
         disable_web_page_preview=True
     )
