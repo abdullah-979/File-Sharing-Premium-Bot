@@ -118,22 +118,34 @@ async def start_command(client: Client, message: Message):
         return
 
 
+async def has_joined_channel(user_id, channel_id):
+    try:
+        chat_member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
+        return chat_member.status in ['member', 'administrator', 'creator']
+    except Exception as e:
+        # Handle exceptions (e.g., user not found, channel not accessible)
+        return False
+
 @Bot.on_message(filters.command('start') & filters.private)
 async def not_joined(client: Client, message: Message):
     buttons = []
 
-    if hasattr(client, 'invitelink'):
+    user_id = message.from_user.id
+
+    # Check each channel and add the button only if the user has not joined
+    if hasattr(client, 'invitelink') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL):
         buttons.append([InlineKeyboardButton(text="Join Channel 1", url=client.invitelink)])
     
-    if hasattr(client, 'invitelink2'):
+    if hasattr(client, 'invitelink2') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL2):
         buttons.append([InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2)])
     
-    if hasattr(client, 'invitelink3'):
+    if hasattr(client, 'invitelink3') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL3):
         buttons.append([InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3)])
     
-    if hasattr(client, 'invitelink4'):
+    if hasattr(client, 'invitelink4') and not await has_joined_channel(user_id, FORCE_SUB_CHANNEL4):
         buttons.append([InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4)])
 
+    # Add the "Try Again" button if the command contains additional parameters
     if message.command and len(message.command) > 1:
         buttons.append(
             [
@@ -144,42 +156,19 @@ async def not_joined(client: Client, message: Message):
             ]
         )
 
-    if buttons:
-        await message.reply(
-            text=FORCE_MSG.format(
-                first=message.from_user.first_name,
-                last=message.from_user.last_name,
-                username=None if not message.from_user.username else '@' + message.from_user.username,
-                mention=message.from_user.mention,
-                id=message.from_user.id
-            ),
-            reply_markup=InlineKeyboardMarkup(buttons),
-            quote=True,
-            disable_web_page_preview=True
-        )
-    else:
-        # Fallback to the standard start message if no invite links are available
-        reply_markup = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("😊 About Me", callback_data="about"),
-                    InlineKeyboardButton("🔒 Close", callback_data="close")
-                ]
-            ]
-        )
-        await message.reply_text(
-            text=START_MSG.format(
-                first=message.from_user.first_name,
-                last=message.from_user.last_name,
-                username=None if not message.from_user.username else '@' + message.from_user.username,
-                mention=message.from_user.mention,
-                id=message.from_user.id
-            ),
-            reply_markup=reply_markup,
-            disable_web_page_preview=True,
-            quote=True
-        )
-        return
+    # Send the message with the buttons
+    await message.reply(
+        text=FORCE_MSG.format(
+            first=message.from_user.first_name,
+            last=message.from_user.last_name,
+            username=None if not message.from_user.username else '@' + message.from_user.username,
+            mention=message.from_user.mention,
+            id=message.from_user.id
+        ),
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True,
+        disable_web_page_preview=True
+    )
 
 
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
