@@ -122,17 +122,28 @@ async def start_command(client: Client, message: Message):
 async def not_joined(client: Client, message: Message):
     buttons = []
 
-    if hasattr(client, 'invitelink'):
-        buttons.append([InlineKeyboardButton(text="Join Channel 1", url=client.invitelink)])
-    
-    if hasattr(client, 'invitelink2'):
-        buttons.append([InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2)])
-    
-    if hasattr(client, 'invitelink3'):
-        buttons.append([InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3)])
-    
-    if hasattr(client, 'invitelink4'):
-        buttons.append([InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4)])
+    user_id = message.from_user.id
+
+    # List of channels to check
+    channels = [
+        {'attr': 'invitelink', 'id': FORCE_SUB_CHANNEL},
+        {'attr': 'invitelink2', 'id': FORCE_SUB_CHANNEL2},
+        {'attr': 'invitelink3', 'id': FORCE_SUB_CHANNEL3},
+        {'attr': 'invitelink4', 'id': FORCE_SUB_CHANNEL4}
+    ]
+
+    for channel in channels:
+        if hasattr(client, channel['attr']):
+            try:
+                # Fetch channel info
+                chat = await client.get_chat(channel['id'])
+                channel_name = chat.title
+
+                # Check if user is a member of the channel
+                if not await has_joined_channel(user_id, channel['id']):
+                    buttons.append([InlineKeyboardButton(text=f"Join {channel_name}", url=getattr(client, channel['attr']))])
+            except Exception as e:
+                print(f"Failed to fetch channel info for {channel['id']}: {e}")
 
     if message.command and len(message.command) > 1:
         buttons.append(
@@ -156,6 +167,7 @@ async def not_joined(client: Client, message: Message):
         quote=True,
         disable_web_page_preview=True
     )
+
 
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
 async def get_users(client: Bot, message: Message):
