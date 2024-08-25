@@ -168,6 +168,9 @@ async def not_joined(client: Client, message: Message):
             ]
         )
 
+    # Define reply_markup based on whether there are buttons or not
+    reply_markup = InlineKeyboardMarkup(buttons) if buttons else None
+
     await message.reply(
         text=FORCE_MSG.format(
             first=message.from_user.first_name,
