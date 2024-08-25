@@ -12,171 +12,140 @@ file_auto_delete = humanize.naturaldelta(FILE_AUTO_DELETE)
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
 async def start_command(client: Client, message: Message):
-    id = message.from_user.id
-    if not await present_user(id):
+    user_id = message.from_user.id
+    if not await present_user(user_id):
         try:
-            await add_user(id)
-        except:
-            pass
+            await add_user(user_id)
+        except Exception as e:
+            client.LOGGER(__name__).warning(f"Failed to add user: {e}")
+
     text = message.text
-    if len(text)>7:
+    if len(text) > 7:
         try:
             base64_string = text.split(" ", 1)[1]
-        except:
+            decoded_string = await decode(base64_string)
+            arguments = decoded_string.split("-")
+        except Exception as e:
+            client.LOGGER(__name__).warning(f"Failed to decode base64 string: {e}")
             return
-        string = await decode(base64_string)
-        argument = string.split("-")
-        if len(argument) == 3:
+
+        if len(arguments) == 3:
             try:
-                start = int(int(argument[1]) / abs(client.db_channel.id))
-                end = int(int(argument[2]) / abs(client.db_channel.id))
-            except:
+                start = int(int(arguments[1]) / abs(client.db_channel.id))
+                end = int(int(arguments[2]) / abs(client.db_channel.id))
+                ids = range(start, end + 1) if start <= end else list(range(start, end - 1, -1))
+            except ValueError as e:
+                client.LOGGER(__name__).warning(f"Invalid arguments for range: {e}")
                 return
-            if start <= end:
-                ids = range(start,end+1)
-            else:
-                ids = []
-                i = start
-                while True:
-                    ids.append(i)
-                    i -= 1
-                    if i < end:
-                        break
-        elif len(argument) == 2:
+        elif len(arguments) == 2:
             try:
-                ids = [int(int(argument[1]) / abs(client.db_channel.id))]
-            except:
+                ids = [int(int(arguments[1]) / abs(client.db_channel.id))]
+            except ValueError as e:
+                client.LOGGER(__name__).warning(f"Invalid argument for ID: {e}")
                 return
+
         temp_msg = await message.reply("Please Wait...")
         try:
             messages = await get_messages(client, ids)
-        except:
+        except Exception as e:
+            client.LOGGER(__name__).warning(f"Failed to get messages: {e}")
             await message.reply_text("Something Went Wrong..!")
             return
         await temp_msg.delete()
-    
-        madflix_msgs = [] # List to keep track of sent messages
+
+        madflix_msgs = []
 
         for msg in messages:
+            caption = (CUSTOM_CAPTION.format(previouscaption=msg.caption.html, filename=msg.document.file_name)
+                       if bool(CUSTOM_CAPTION) and msg.document else
+                       msg.caption.html if msg.caption else "")
 
-            if bool(CUSTOM_CAPTION) & bool(msg.document):
-                caption = CUSTOM_CAPTION.format(previouscaption = "" if not msg.caption else msg.caption.html, filename = msg.document.file_name)
-            else:
-                caption = "" if not msg.caption else msg.caption.html
-
-            if DISABLE_CHANNEL_BUTTON:
-                reply_markup = msg.reply_markup
-            else:
-                reply_markup = None
+            reply_markup = msg.reply_markup if not DISABLE_CHANNEL_BUTTON else None
 
             try:
-                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
-                # await asyncio.sleep(0.5)
+                madflix_msg = await msg.copy(chat_id=message.from_user.id,
+                                             caption=caption,
+                                             parse_mode=ParseMode.HTML,
+                                             reply_markup=reply_markup,
+                                             protect_content=PROTECT_CONTENT)
                 madflix_msgs.append(madflix_msg)
-                
             except FloodWait as e:
                 await asyncio.sleep(e.x)
-                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
+                madflix_msg = await msg.copy(chat_id=message.from_user.id,
+                                             caption=caption,
+                                             parse_mode=ParseMode.HTML,
+                                             reply_markup=reply_markup,
+                                             protect_content=PROTECT_CONTENT)
                 madflix_msgs.append(madflix_msg)
-                
-            except:
-                pass
-        k = await client.send_message(chat_id = message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+            except Exception as e:
+                client.LOGGER(__name__).warning(f"Failed to copy message: {e}")
+                continue
 
-        # Schedule the file deletion
+        k = await client.send_message(chat_id=message.from_user.id,
+                                      text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+
         asyncio.create_task(delete_files(madflix_msgs, client, k))
-        
-        # for madflix_msg in madflix_msgs: 
-            # try:
-                # await madflix_msg.delete()
-                # await k.edit_text("Your Video / File Is Successfully Deleted ✅") 
-            # except:    
-                # pass 
-
         return
     else:
         reply_markup = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("😊 About Me", callback_data = "about"),
-                    InlineKeyboardButton("🔒 Close", callback_data = "close")
+                    InlineKeyboardButton("😊 About Me", callback_data="about"),
+                    InlineKeyboardButton("🔒 Close", callback_data="close")
                 ]
             ]
         )
         await message.reply_text(
-            text = START_MSG.format(
-                first = message.from_user.first_name,
-                last = message.from_user.last_name,
-                username = None if not message.from_user.username else '@' + message.from_user.username,
-                mention = message.from_user.mention,
-                id = message.from_user.id
+            text=START_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
             ),
-            reply_markup = reply_markup,
-            disable_web_page_preview = True,
-            quote = True
+            reply_markup=reply_markup,
+            disable_web_page_preview=True,
+            quote=True
         )
         return
 
 
 @Bot.on_message(filters.command('start') & filters.private)
 async def not_joined(client: Client, message: Message):
-    buttons = []
-
-    # Dynamically add join buttons based on available FORCE_SUB_CHANNEL variables
-    if hasattr(client, 'invitelink') and client.invitelink:
-        buttons.append(InlineKeyboardButton(text="Join Channel 1", url=client.invitelink))
-    if hasattr(client, 'invitelink2') and client.invitelink2:
-        buttons.append(InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2))
-    if hasattr(client, 'invitelink3') and client.invitelink3:
-        buttons.append(InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3))
-    if hasattr(client, 'invitelink4') and client.invitelink4:
-        buttons.append(InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4))
-
-    # Organize buttons into rows of two
-    keyboard = []
-    for i in range(0, len(buttons), 2):
-        keyboard.append(buttons[i:i+2])
-
-    # Add the "Try Again" button if there are any join buttons
-    if buttons:
-        try:
-            # Ensure that there's a start parameter to use
-            start_param = message.command[1]
-            keyboard.append([
+    buttons = [
+        [
+            InlineKeyboardButton(text="Join Channel 1", url=client.invitelink),
+            InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2),
+        ],
+        [
+            InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3),
+            InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4),
+        ]
+    ]
+    try:
+        buttons.append(
+            [
                 InlineKeyboardButton(
                     text='Try Again',
-                    url=f"https://t.me/{client.username}?start={start_param}"
+                    url=f"https://t.me/{client.username}?start={message.command[1]}"
                 )
-            ])
-        except IndexError:
-            # If there's no start parameter, omit the "Try Again" button
-            pass
-
-    # Construct the reply message
-    reply_text = FORCE_MSG.format(
-        first=message.from_user.first_name or "there",
-        last=message.from_user.last_name or "",
-        username='@' + message.from_user.username if message.from_user.username else "N/A",
-        mention=message.from_user.mention,
-        id=message.from_user.id
+            ]
+        )
+    except IndexError:
+        pass
+    await message.reply(
+        text=FORCE_MSG.format(
+            first=message.from_user.first_name,
+            last=message.from_user.last_name,
+            username=None if not message.from_user.username else '@' + message.from_user.username,
+            mention=message.from_user.mention,
+            id=message.from_user.id
+        ),
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True,
+        disable_web_page_preview=True
     )
 
-    # Send the reply with the dynamically created buttons
-    if keyboard:
-        await message.reply_text(
-            text=reply_text,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            quote=True,
-            disable_web_page_preview=True
-        )
-    else:
-        # If no channels are required to join, send a different message or proceed normally
-        await message.reply_text(
-            text=reply_text,
-            quote=True,
-            disable_web_page_preview=True
-        )
-        
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
 async def get_users(client: Bot, message: Message):
     msg = await client.send_message(chat_id=message.chat.id, text=f"Processing...")
