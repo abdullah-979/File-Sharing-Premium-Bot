@@ -132,42 +132,31 @@ async def not_joined(client: Client, message: Message):
     buttons = []
     user_id = message.from_user.id
 
-    # List of channels with their corresponding invite links and names
+    # List of channels with their corresponding invite links
     channels = [
-        {'attr': 'invitelink', 'id': FORCE_SUB_CHANNEL, 'name': 'Channel 1'},
-        {'attr': 'invitelink2', 'id': FORCE_SUB_CHANNEL2, 'name': 'Channel 2'},
-        {'attr': 'invitelink3', 'id': FORCE_SUB_CHANNEL3, 'name': 'Channel 3'},
-        {'attr': 'invitelink4', 'id': FORCE_SUB_CHANNEL4, 'name': 'Channel 4'}
+        {'attr': 'invitelink', 'id': FORCE_SUB_CHANNEL},
+        {'attr': 'invitelink2', 'id': FORCE_SUB_CHANNEL2},
+        {'attr': 'invitelink3', 'id': FORCE_SUB_CHANNEL3},
+        {'attr': 'invitelink4', 'id': FORCE_SUB_CHANNEL4}
     ]
 
-    # Iterate over channels to determine which ones the user hasn't joined yet
     for channel in channels:
         channel_id = channel['id']
         attr = channel['attr']
-        channel_name = channel['name']
         
         if hasattr(client, attr):
             invite_link = getattr(client, attr)
             
-            # Check if the user is a member of the channel
-            if not await has_joined_channel(client, user_id, channel_id):
-                buttons.append([InlineKeyboardButton(text=f"Join {channel_name}", url=invite_link)])
+            # Fetch channel info
+            try:
+                chat = await client.get_chat(channel_id)
+                channel_name = chat.title
 
-    if not buttons:
-        # No channels left to join, show a default message
-        reply_markup = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("😊 About Me", callback_data="about"),
-                    InlineKeyboardButton("🔒 Close", callback_data="close")
-                ]
-            ]
-        )
-        text_message = "You have joined all required channels."
-    else:
-        # Remaining channels to join
-        reply_markup = InlineKeyboardMarkup(buttons)
-        text_message = "You need to join the following channel(s) to use the bot:"
+                # Check if the user is a member of the channel
+                if not await has_joined_channel(client, user_id, channel_id):
+                    buttons.append([InlineKeyboardButton(text=f"Join {channel_name}", url=invite_link)])
+            except Exception as e:
+                print(f"Failed to fetch channel info for {channel_id}: {e}")
 
     if message.command and len(message.command) > 1:
         buttons.append(
@@ -179,8 +168,17 @@ async def not_joined(client: Client, message: Message):
             ]
         )
 
+    # Define reply_markup based on whether there are buttons or not
+    reply_markup = InlineKeyboardMarkup(buttons) if buttons else None
+
     await message.reply(
-        text=text_message,
+        text=FORCE_MSG.format(
+            first=message.from_user.first_name,
+            last=message.from_user.last_name,
+            username=None if not message.from_user.username else '@' + message.from_user.username,
+            mention=message.from_user.mention,
+            id=message.from_user.id
+        ),
         reply_markup=reply_markup,
         quote=True,
         disable_web_page_preview=True
