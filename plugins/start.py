@@ -117,6 +117,7 @@ async def start_command(client: Client, message: Message):
         )
         return
 
+
 # Function to check if the user has joined the channel
 async def has_joined_channel(client: Client, user_id: int, channel_id: str) -> bool:
     try:
@@ -166,19 +167,6 @@ async def not_joined(client: Client, message: Message):
                 )
             ]
         )
-
-    # Default reply markup when no channels to show
-    default_markup = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton("😊 About Me", callback_data="about"),
-                InlineKeyboardButton("🔒 Close", callback_data="close")
-            ]
-        ]
-    )
-
-    # Use default markup if no channels are left to join
-    reply_markup = InlineKeyboardMarkup(buttons) if buttons else default_markup
 
     await message.reply(
         text=FORCE_MSG.format(
